@@ -64,7 +64,7 @@ fi
   export GOOS=freebsd GOARCH=amd64 CGO_ENABLED=1 FREEBSD_SYSROOT="$sysroot"
   # Go parses quoted compiler command strings, including paths with spaces.
   export CC="\"$repo/scripts/freebsd-cc.sh\""
-  make build VERSION="${VERSION:-0.1.0}" REPOSITORY="${REPOSITORY:-UNCONFIGURED}"
+  make build VERSION="${VERSION:-0.1.1}" REPOSITORY="${REPOSITORY:-UNCONFIGURED}"
   # Compile OS-specific test code without pretending to execute it on Linux.
   mkdir -p "$cache/test-binaries"
   for package in $(go list ./...); do

@@ -337,14 +337,6 @@ func (s *Service) pumpStream(ctx context.Context, outputID, endpoint, destinatio
 			if errTranslate != nil {
 				return errTranslate
 			}
-			if destination == "openai" {
-				output = formatOpenAIStreamChunkForHost(output)
-				if len(output) == 0 {
-					continue
-				}
-			}
-			if errEmit := s.host.Emit(ctx, outputID, output); errEmit != nil {
-				return errEmit
 			chunks := [][]byte{output}
 			if destination == "openai" {
 				chunks, errTranslate = formatOpenAIStreamChunksForHost(output)
@@ -456,31 +448,6 @@ func normalizeRequestFormat(value string) string {
 	default:
 		return ""
 	}
-}
-
-// formatOpenAIStreamChunkForHost prepares an OpenAI SSE frame to be emitted to CLIProxyAPI host.
-// CLIProxyAPI's handleStreamingResponse re-encapsulates any output line with "data: <line>\n\n".
-// If the plugin emits "data: {"choices":...}\n\n", the client receives "data: data: {"choices":...}\n\n\n\n".
-// Furthermore, CLIProxyAPI appends its own "data: [DONE]\n\n" at the end of the stream.
-// To prevent double wrapping and double [DONE], extract only the JSON payload and omit terminal [DONE].
-func formatOpenAIStreamChunkForHost(frame []byte) []byte {
-	normalized := bytes.ReplaceAll(frame, []byte("\r\n"), []byte("\n"))
-	var payloads [][]byte
-	for _, line := range bytes.Split(normalized, []byte("\n")) {
-		line = bytes.TrimSpace(line)
-		if !bytes.HasPrefix(line, []byte("data:")) {
-			continue
-		}
-		data := bytes.TrimSpace(bytes.TrimPrefix(line, []byte("data:")))
-		if len(data) == 0 || bytes.Equal(data, []byte("[DONE]")) {
-			continue
-		}
-		payloads = append(payloads, data)
-	}
-	if len(payloads) == 0 {
-		return nil
-	}
-	return bytes.Join(payloads, []byte("\n"))
 }
 
 func (s *Service) HTTP(context.Context, HTTPRequest) (pluginapi.ExecutorHTTPResponse, error) {

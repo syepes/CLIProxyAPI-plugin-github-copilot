@@ -288,8 +288,8 @@ func TestNativePlugin(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			write(filepath.Join(plugins, id+"-v0.1.0"+ext), replacement)
-			cfg["plugins"].(map[string]any)["configs"].(map[string]any)[id].(map[string]any)["store"] = map[string]any{"version": "0.1.0"}
+			write(filepath.Join(plugins, id+"-v0.1.1"+ext), replacement)
+			cfg["plugins"].(map[string]any)["configs"].(map[string]any)[id].(map[string]any)["store"] = map[string]any{"version": "0.1.1"}
 			next, err := json.Marshal(cfg)
 			if err != nil {
 				t.Fatal(err)
@@ -786,5 +786,4 @@ func TestNativePlugin(t *testing.T) {
 		patch(map[string]any{"models_excluded": []string{"account-"}})
 		patch(map[string]any{"model_prefix": "", "models": []any{}, "models_excluded": []string{}}, "copilot/account-model", "copilot/responses-only")
 	})
-
 }

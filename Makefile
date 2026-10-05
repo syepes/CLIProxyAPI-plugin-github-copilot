@@ -1,7 +1,7 @@
 GO ?= go
 GOOS ?= $(shell $(GO) env GOOS)
 GOARCH ?= $(shell $(GO) env GOARCH)
-VERSION ?= 0.1.0
+VERSION ?= 0.1.1
 REPOSITORY ?= UNCONFIGURED
 HOSTOS := $(shell $(GO) env GOHOSTOS)
 HOSTARCH := $(shell $(GO) env GOHOSTARCH)
