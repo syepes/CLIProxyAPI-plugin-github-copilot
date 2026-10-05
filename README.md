@@ -119,6 +119,8 @@ No login is performed during build, installation, or startup.
 | `models` | `[]` | Optional `{name, alias}` allowlist; empty discovers all eligible models |
 | `models_excluded` | `[]` | Case-insensitive upstream model ID prefixes to exclude |
 | `model_cache_ttl_seconds` | `60` | Catalog cache lifetime, from 30 to 60 seconds |
+| `model_picker_required` | `false` | When true, requires `model_picker_enabled: true` from GitHub; when false, exposes all active chat models |
+| `allow_raw_model_names` | `false` | When true, exposes raw model names (e.g. `gpt-4o`) alongside prefixed ones (`copilot/gpt-4o`) |
 
 ```yaml
 model_prefix: copilot

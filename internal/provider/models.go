@@ -197,7 +197,7 @@ func (s *Service) fetchModels(ctx context.Context, callbackID, authID string, st
 	if len(resp.Body) > 8<<20 || json.Unmarshal(resp.Body, &list) != nil || list.Data == nil {
 		return nil, token, errors.New("invalid account model catalog")
 	}
-	return filterModels(normalizeModels(list.Data), s.Config().ModelsExcluded), token, nil
+	return filterModels(normalizeModels(list.Data, s.Config()), s.Config().ModelsExcluded), token, nil
 }
 func (s *Service) endpointForModel(ctx context.Context, callbackID, authID string, storage authStorage, modelID string) (string, copilotTokenEntry, error) {
 	return s.endpointForFormat(ctx, callbackID, authID, storage, modelID, "")
@@ -233,7 +233,7 @@ func selectEndpoint(model upstreamModel) (string, error) {
 	return "", statusError("unsupported_model_endpoint", "Copilot model exposes no supported chat endpoint", http.StatusUnprocessableEntity)
 }
 
-func normalizeModels(models []upstreamModel) []upstreamModel {
+func normalizeModels(models []upstreamModel, cfg Config) []upstreamModel {
 	counts := map[string]int{}
 	for _, m := range models {
 		counts[strings.ToLower(strings.TrimSpace(m.ID))]++
@@ -242,7 +242,7 @@ func normalizeModels(models []upstreamModel) []upstreamModel {
 	out := make([]upstreamModel, 0, len(models))
 	for _, model := range models {
 		model.ID = strings.TrimSpace(model.ID)
-		if counts[strings.ToLower(model.ID)] > 1 || model.ID == "" || !model.ModelPickerEnabled || model.Capabilities.Type != "chat" || (model.Policy != nil && model.Policy.State != "enabled") {
+		if counts[strings.ToLower(model.ID)] > 1 || model.ID == "" || (cfg.ModelPickerRequired && !model.ModelPickerEnabled) || model.Capabilities.Type != "chat" || (model.Policy != nil && model.Policy.State != "enabled") {
 			continue
 		}
 		key := strings.ToLower(model.ID)
@@ -256,7 +256,11 @@ func normalizeModels(models []upstreamModel) []upstreamModel {
 		model.Object = strings.TrimSpace(model.Object)
 		model.SupportedEndpoints = normalizeEndpoints(model.SupportedEndpoints)
 		if len(model.SupportedEndpoints) == 0 {
-			continue
+			if model.Capabilities.Type == "chat" {
+				model.SupportedEndpoints = []string{translate.EndpointChatCompletions}
+			} else {
+				continue
+			}
 		}
 
 		out = append(out, model)

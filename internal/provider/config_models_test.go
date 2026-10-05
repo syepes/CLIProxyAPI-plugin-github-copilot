@@ -153,3 +153,16 @@ func TestModelsExcludedConfig(t *testing.T) {
 		t.Fatal("accepted non-array exclusions")
 	}
 }
+
+func TestAllowRawModelNames(t *testing.T) {
+	cfg := DefaultConfig()
+	cfg.AllowRawModelNames = true
+	aliases := cfg.modelAliases("gpt-4o")
+	if !reflect.DeepEqual(aliases, []string{"copilot/gpt-4o", "gpt-4o"}) {
+		t.Fatalf("expected raw and prefixed aliases, got %v", aliases)
+	}
+	native, err := cfg.upstreamModelID("gpt-4o")
+	if err != nil || native != "gpt-4o" {
+		t.Fatalf("expected raw model id resolution, got %q %v", native, err)
+	}
+}

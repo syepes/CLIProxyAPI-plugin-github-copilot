@@ -16,10 +16,10 @@ func TestCopilotHeadersUseRecognizedIntegration(t *testing.T) {
 
 	expected := map[string]string{
 		"Copilot-Integration-Id": "vscode-chat",
-		"Editor-Plugin-Version":  "copilot-chat/0.48.1",
+		"Editor-Plugin-Version":  "copilot-chat/0.67.0",
 		"Editor-Version":         "vscode/1.139.1",
 		"OpenAI-Intent":          "conversation-agent",
-		"User-Agent":             "GitHubCopilotChat/0.48.1",
+		"User-Agent":             "GitHubCopilotChat/0.67.0",
 		"X-GitHub-Api-Version":   "2026-08-01",
 	}
 

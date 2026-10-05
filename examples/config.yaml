@@ -23,6 +23,8 @@ plugins:
       oauth_timeout_seconds: 900
       model_cache_ttl_seconds: 60 # 30-60 seconds, never stale fallback.
       token_expiry_buffer_seconds: 300
+      model_picker_required: false # When false (default), discovers all active chat models even if model_picker_enabled is false upstream.
+      allow_raw_model_names: false # When true, additionally exposes unprefixed model names (e.g. gpt-4o alongside copilot/gpt-4o).
 
 # GHE.com alternative: replace the three public endpoints above with these.
 # Use a client ID approved for device flow on your tenant (not a client secret).

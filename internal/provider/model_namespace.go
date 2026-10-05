@@ -14,6 +14,9 @@ func (c Config) exposedModelID(upstreamID string) string { return c.ModelPrefix 
 
 func (c Config) modelAliases(upstreamID string) []string {
 	if len(c.Models) == 0 {
+		if c.AllowRawModelNames {
+			return []string{c.exposedModelID(upstreamID), upstreamID}
+		}
 		return []string{c.exposedModelID(upstreamID)}
 	}
 	var aliases []string
@@ -35,10 +38,13 @@ func (c Config) upstreamModelID(exposedID string) (string, error) {
 		return "", statusError("model_not_found", "model is not in the configured allowlist", 404)
 	}
 	id, ok := strings.CutPrefix(exposedID, c.ModelPrefix+"/")
-	if !ok || id == "" {
-		return "", statusError("model_not_found", "Copilot models must use the configured "+c.ModelPrefix+"/ namespace", 404)
+	if ok && id != "" {
+		return id, nil
 	}
-	return id, nil
+	if c.AllowRawModelNames && exposedID != "" {
+		return exposedID, nil
+	}
+	return "", statusError("model_not_found", "Copilot models must use the configured "+c.ModelPrefix+"/ namespace", 404)
 }
 
 // Only protocol model metadata is rewritten. Message text, function arguments,

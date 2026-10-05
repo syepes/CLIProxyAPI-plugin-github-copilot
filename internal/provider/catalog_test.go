@@ -57,15 +57,18 @@ func newTestService(t *testing.T, h transport.Host) *Service {
 func TestCatalogEligibility(t *testing.T) {
 	cases := []struct {
 		name, fragment string
+		pickerRequired bool
 		want           int
 	}{
-		{"enabled", `"model_picker_enabled":true,"policy":{"state":"enabled"}`, 1},
-		{"legacy optional policy", `"model_picker_enabled":true`, 1},
-		{"disabled", `"model_picker_enabled":true,"policy":{"state":"disabled"}`, 0},
-		{"unknown policy", `"model_picker_enabled":true,"policy":{"state":"unknown"}`, 0},
-		{"empty policy", `"model_picker_enabled":true,"policy":{}`, 0},
-		{"hidden", `"model_picker_enabled":false`, 0},
-		{"missing picker", `"preview":true`, 0},
+		{"enabled", `"model_picker_enabled":true,"policy":{"state":"enabled"}`, false, 1},
+		{"legacy optional policy", `"model_picker_enabled":true`, false, 1},
+		{"disabled", `"model_picker_enabled":true,"policy":{"state":"disabled"}`, false, 0},
+		{"unknown policy", `"model_picker_enabled":true,"policy":{"state":"unknown"}`, false, 0},
+		{"empty policy", `"model_picker_enabled":true,"policy":{}`, false, 0},
+		{"hidden allowed by default", `"model_picker_enabled":false`, false, 1},
+		{"hidden filtered when picker required", `"model_picker_enabled":false`, true, 0},
+		{"missing picker allowed by default", `"preview":true`, false, 1},
+		{"missing picker filtered when required", `"preview":true`, true, 0},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -73,7 +76,9 @@ func TestCatalogEligibility(t *testing.T) {
 			if err := json.Unmarshal([]byte(`{"data":[{"id":"model",`+tc.fragment+`,"capabilities":{"type":"chat"},"supported_endpoints":["/responses"]}]}`), &list); err != nil {
 				t.Fatal(err)
 			}
-			if got := normalizeModels(list.Data); len(got) != tc.want {
+			cfg := DefaultConfig()
+			cfg.ModelPickerRequired = tc.pickerRequired
+			if got := normalizeModels(list.Data, cfg); len(got) != tc.want {
 				t.Fatalf("eligible=%d want %d", len(got), tc.want)
 			}
 		})

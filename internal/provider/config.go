@@ -37,6 +37,8 @@ type Config struct {
 	ModelCacheTTLSeconds     int           `yaml:"model_cache_ttl_seconds"`
 	TokenExpiryBufferSeconds int           `yaml:"token_expiry_buffer_seconds"`
 	ModelsExcluded           []string      `yaml:"models_excluded"`
+	ModelPickerRequired      bool          `yaml:"model_picker_required"`
+	AllowRawModelNames       bool          `yaml:"allow_raw_model_names"`
 }
 
 func DefaultConfig() Config {

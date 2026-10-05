@@ -3,6 +3,7 @@ package provider
 import (
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type StatusError struct {
@@ -28,7 +29,9 @@ func statusError(code, message string, status int) error {
 
 func upstreamStatusError(status int, detail string) error {
 	message := fmt.Sprintf("Copilot upstream returned HTTP %d", status)
-	_ = detail // Never expose upstream error bodies, even if a redactor misses a secret.
+	if detail = strings.TrimSpace(detail); detail != "" {
+		message = fmt.Sprintf("Copilot upstream returned HTTP %d: %s", status, detail)
+	}
 	if status < 400 || status > 599 {
 		status = 502
 	}

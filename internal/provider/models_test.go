@@ -76,7 +76,7 @@ func TestNormalizeModelsPreservesCatalogEndpoints(t *testing.T) {
 				Limits:   modelLimits{MaxPromptTokens: 100, MaxOutputTokens: 20},
 			},
 		},
-	})
+	}, DefaultConfig())
 	if len(models) != 1 || contains(models[0].SupportedEndpoints, translate.EndpointResponses) {
 		t.Fatalf("an unadvertised endpoint was invented: %#v", models)
 	}
@@ -86,6 +86,20 @@ func TestNormalizeModelsPreservesCatalogEndpoints(t *testing.T) {
 	}
 	if !contains(info.SupportedInputModalities, "IMAGE") {
 		t.Fatalf("model metadata omits image support: %#v", info.SupportedInputModalities)
+	}
+}
+
+func TestNormalizeModelsDefaultsEndpointsForChat(t *testing.T) {
+	t.Parallel()
+
+	models := normalizeModels([]upstreamModel{
+		{
+			ID:           "gpt-4o",
+			Capabilities: modelCapabilities{Type: "chat"},
+		},
+	}, DefaultConfig())
+	if len(models) != 1 || len(models[0].SupportedEndpoints) != 1 || models[0].SupportedEndpoints[0] != translate.EndpointChatCompletions {
+		t.Fatalf("expected /chat/completions default endpoint, got %#v", models)
 	}
 }
 
