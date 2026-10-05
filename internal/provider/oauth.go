@@ -14,7 +14,6 @@ import (
 
 	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 
-	"cliproxyapi-github-copilot/internal/redact"
 	"cliproxyapi-github-copilot/internal/transport"
 )
 
@@ -114,7 +113,7 @@ func (s *Service) StartLogin(ctx context.Context, callbackID string) (pluginapi.
 		return pluginapi.AuthLoginStartResponse{}, fmt.Errorf("start GitHub device flow: %w", errDo)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return pluginapi.AuthLoginStartResponse{}, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body))
+		return pluginapi.AuthLoginStartResponse{}, upstreamStatusError(resp.StatusCode, "GitHub device login request failed")
 	}
 	var device deviceCodeResponse
 	if errUnmarshal := json.Unmarshal(resp.Body, &device); errUnmarshal != nil {
@@ -358,7 +357,7 @@ func (s *Service) fetchGitHubUser(ctx context.Context, callbackID, accessToken s
 		return githubUser{}, fmt.Errorf("fetch GitHub user: %w", errDo)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return githubUser{}, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body, accessToken))
+		return githubUser{}, upstreamStatusError(resp.StatusCode, "GitHub user lookup failed")
 	}
 	var user githubUser
 	if errUnmarshal := json.Unmarshal(resp.Body, &user); errUnmarshal != nil {
@@ -423,7 +422,7 @@ func (s *Service) RefreshAuth(ctx context.Context, callbackID string, req plugin
 		return pluginapi.AuthRefreshResponse{}, fmt.Errorf("decode GitHub OAuth refresh response: %w", errUnmarshal)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 || strings.TrimSpace(token.AccessToken) == "" {
-		return pluginapi.AuthRefreshResponse{}, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body, storage.GitHubAccessToken, storage.GitHubRefreshToken))
+		return pluginapi.AuthRefreshResponse{}, upstreamStatusError(resp.StatusCode, "GitHub token refresh failed")
 	}
 	storage.GitHubAccessToken = strings.TrimSpace(token.AccessToken)
 	if strings.TrimSpace(token.RefreshToken) != "" {

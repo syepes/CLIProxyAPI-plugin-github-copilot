@@ -13,7 +13,6 @@ import (
 
 	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 
-	"cliproxyapi-github-copilot/internal/redact"
 	"cliproxyapi-github-copilot/internal/sse"
 	"cliproxyapi-github-copilot/internal/translate"
 	"cliproxyapi-github-copilot/internal/transport"
@@ -151,11 +150,10 @@ func (s *Service) executeStreamWithTimeouts(ctx context.Context, req ExecuteRequ
 		return nil, err
 	}
 	if upstream.StatusCode < 200 || upstream.StatusCode >= 300 {
-		body, errCollect := s.collectStreamError(ctx, upstream, limits.idle)
-		if errCollect != nil {
+		if _, errCollect := s.collectStreamError(ctx, upstream, limits.idle); errCollect != nil {
 			return nil, errCollect
 		}
-		return nil, upstreamStatusError(upstream.StatusCode, redact.ErrorBody(body, token.Token, storage.GitHubAccessToken))
+		return nil, upstreamStatusError(upstream.StatusCode, "Copilot upstream request failed")
 	}
 	if !s.spawn(func() {
 		defer finish()
@@ -197,7 +195,7 @@ func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string,
 		}
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return resp, token, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body, token.Token, storage.GitHubAccessToken))
+		return resp, token, upstreamStatusError(resp.StatusCode, "Copilot upstream request failed")
 	}
 	return resp, token, nil
 }

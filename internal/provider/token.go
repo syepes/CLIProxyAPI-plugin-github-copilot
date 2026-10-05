@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"cliproxyapi-github-copilot/internal/redact"
 	"cliproxyapi-github-copilot/internal/transport"
 )
 
@@ -125,7 +124,7 @@ func (s *Service) exchangeCopilotToken(ctx context.Context, callbackID, fingerpr
 		return copilotTokenEntry{}, fmt.Errorf("exchange GitHub OAuth token for Copilot token: %w", errDo)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return copilotTokenEntry{}, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body, githubToken))
+		return copilotTokenEntry{}, upstreamStatusError(resp.StatusCode, "Copilot token request failed")
 	}
 	var token copilotTokenResponse
 	if errUnmarshal := json.Unmarshal(resp.Body, &token); errUnmarshal != nil {

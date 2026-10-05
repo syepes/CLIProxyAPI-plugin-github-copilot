@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Added
 ### Changed
+### Security
 
 
 ## [v0.1.1] - 2026-10-05
@@ -35,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- 🔒 security: Copilot inference requests, GitHub device login, token exchange/refresh, and GitHub user lookup no longer embed raw upstream error response text in client-facing error messages; each now returns a fixed, safe, status-coded message instead. Resolves the regression flagged as "under review" in the v0.1.1 upstream-error-body refactor.
 - 🔒 security: validate the device-flow verification URL (scheme and host) before storing the login session, and expire stale pending sessions.
 - 🔒 security: bound streams with a 2 minute idle timeout, a 30 minute total timeout and a 256 choice limit.
 - 🔒 security: cancel and close upstream and output streams on cancellation, so blocked native read and emit calls are released.

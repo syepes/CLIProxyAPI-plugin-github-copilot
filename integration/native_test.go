@@ -191,7 +191,7 @@ func TestNativePlugin(t *testing.T) {
 	}
 	port := ln.Addr().(*net.TCPAddr).Port
 	_ = ln.Close()
-	cfg := map[string]any{"host": "127.0.0.1", "port": port, "auth-dir": authdir, "api-keys": []string{"client-test-key"}, "remote-management": map[string]any{"secret-key": "management-test-key", "disable-control-panel": true, "disable-auto-update-panel": true}, "request-retry": 0, "max-retry-interval": 0, "commercial-mode": true, "disable-cooling": true, "plugins": map[string]any{"enabled": true, "dir": filepath.Join(temp, "plugins"), "configs": map[string]any{id: map[string]any{"enabled": true, "github_base_url": upstream.URL, "github_api_url": upstream.URL, "copilot_api_url": upstream.URL, "allow_insecure_base_urls": true, "model_cache_ttl_seconds": 30}}}}
+	cfg := map[string]any{"host": "127.0.0.1", "port": port, "auth-dir": authdir, "api-keys": []string{"client-test-key"}, "remote-management": map[string]any{"secret-key": "management-test-key", "disable-control-panel": true, "disable-auto-update-panel": true}, "request-retry": 0, "max-retry-interval": 0, "commercial-mode": true, "disable-cooling": true, "plugins": map[string]any{"enabled": true, "dir": filepath.Join(temp, "plugins"), "configs": map[string]any{id: map[string]any{"enabled": true, "github_base_url": upstream.URL, "github_api_url": upstream.URL, "copilot_api_url": upstream.URL, "allow_insecure_base_urls": true, "model_cache_ttl_seconds": 30, "model_picker_required": true}}}}
 	raw, _ := json.Marshal(cfg)
 	cfgPath := filepath.Join(temp, "config.json")
 	write(cfgPath, raw)
