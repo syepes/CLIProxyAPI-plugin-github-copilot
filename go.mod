@@ -3,7 +3,7 @@ module cliproxyapi-github-copilot
 go 1.27.1
 
 require (
-	github.com/router-for-me/CLIProxyAPI/v8 v8.0.15
+	github.com/router-for-me/CLIProxyAPI/v8 v8.0.16
 	github.com/tidwall/gjson v1.20.0
 	github.com/tidwall/sjson v1.2.5
 	github.com/tiktoken-go/tokenizer v0.8.1
