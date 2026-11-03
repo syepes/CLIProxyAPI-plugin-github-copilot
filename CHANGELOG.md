@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- 🐛 fix: restore the reserved `collaboration` namespace tools from the original Responses request before sending to Copilot. CLIProxyAPI v8.0.43+ rewrites Codex tool parameters such as `wait_agent.timeout_ms` from `number` to `integer` for plugin executors, and OpenAI models reject modified reserved tools with HTTP 400 (router-for-me/CLIProxyAPI#7211).
 ### Added
 ### Changed
 ### Security
