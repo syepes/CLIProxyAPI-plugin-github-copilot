@@ -3,14 +3,15 @@ module cliproxyapi-github-copilot
 go 1.27.1
 
 require (
-	github.com/router-for-me/CLIProxyAPI/v8 v8.0.15
-	github.com/tidwall/gjson v1.20.0
-	github.com/tidwall/sjson v1.2.5
-	github.com/tiktoken-go/tokenizer v0.8.1
-	go.yaml.in/yaml/v3 v3.0.5
+	github.com/router-for-me/CLIProxyAPI/v8 v8.0.64
+	github.com/tidwall/gjson v1.20.2
+	github.com/tidwall/sjson v1.2.9
+	github.com/tiktoken-go/tokenizer v0.10.0
+	go.yaml.in/yaml/v3 v3.0.6
 )
 
 require (
+	github.com/MoeForge/moego v0.1.0-alpha.1 // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.4 // indirect
 	github.com/bytedance/sonic/loader v0.5.2 // indirect
@@ -38,14 +39,15 @@ require (
 	github.com/redis/go-redis/v9 v9.23.0 // indirect
 	github.com/sirupsen/logrus v1.10.2 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
-	github.com/tidwall/pretty v1.2.2 // indirect
+	github.com/tidwall/pretty v1.3.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.2 // indirect
+	go.etcd.io/bbolt v1.5.0 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.9.1 // indirect
 	go.uber.org/atomic v1.12.0 // indirect
 	golang.org/x/arch v0.31.0 // indirect
 	golang.org/x/crypto v0.57.0 // indirect
-	golang.org/x/net v0.59.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/text v0.42.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
