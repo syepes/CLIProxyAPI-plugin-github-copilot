@@ -17,6 +17,7 @@ GitHub's internal Copilot endpoints are not a stable public inference API.
 - Configurable model prefix, allowlist, aliases, and exclusions.
 - OpenAI Chat Completions, Responses, and Claude Messages, including streaming and tools.
 - An embedded dashboard for connecting accounts, checking status, and refreshing models.
+- Native quota support for the account plan, remaining allowances, and reset times.
 - In-memory Copilot tokens with one renewal retry after an upstream `401`, before output starts.
 - Native library validation, isolated host integration tests, and plugin-store ZIP packaging.
 
@@ -142,6 +143,23 @@ An explicit disabled or unknown policy rejects a model; an omitted policy is acc
 Allowlisting does not enable unavailable models or override exclusions.
 Expired catalogs and failed explicit refreshes fail closed; there are no static fallback models.
 A multi-account host may list a combined catalog, but each request is checked against its selected account.
+
+### Account quotas
+
+The plugin advertises the native quota capability for `copilot`. Management clients,
+including CLIProxyBar, can discover it through `GET /v0/management/quota/providers`.
+They can read an account's quota through `POST /v0/management/quota/fetch` with its
+`auth_index`. The host selects the credential and supplies its stored GitHub token.
+
+Quota requests use `GET <github_api_url>/copilot_internal/user` through the host
+transport. No additional login or OAuth scope is required. The configured GitHub
+origin also applies to quota requests, including GHE.com tenants.
+
+The response includes the plan and finite premium, chat, and completion allowances.
+Token-based premium allowances use the description *Premium credits*. Unlimited
+allowances and snapshots with `has_quota: false` have no finite quota bar. An account
+with only unlimited allowances can return its plan without quota buckets. Missing
+or invalid readings produce an error instead of a zero allowance.
 
 ### Authentication settings
 

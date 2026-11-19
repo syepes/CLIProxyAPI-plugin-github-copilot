@@ -105,7 +105,35 @@ func TestMetadataContract(t *testing.T) {
 	if r.SchemaVersion != 6 || r.Metadata.Author == "" || r.Metadata.GitHubRepository == "" {
 		t.Fatal("host rejects metadata")
 	}
-	if !r.Capabilities.ManagementAPI || r.Capabilities.ExecutorModelScope != pluginapi.ExecutorModelScopeOAuth || len(r.Capabilities.ExecutorInputFormats) != 3 {
+	if !r.Capabilities.ManagementAPI || !r.Capabilities.QuotaProvider || r.Capabilities.ExecutorModelScope != pluginapi.ExecutorModelScopeOAuth || len(r.Capabilities.ExecutorInputFormats) != 3 {
 		t.Fatal("incorrect capabilities")
+	}
+}
+
+func TestQuotaCapabilityDispatch(t *testing.T) {
+	p := New(noHost{})
+	defer p.Close()
+	dispatch(t, p, "plugin.register", lifecycleRequest{SchemaVersion: 6, ConfigYAML: []byte("enabled: true")})
+	for _, method := range []string{"quota.identifier", "quota.describe"} {
+		out := dispatch(t, p, method, struct{}{})
+		if string(out["ok"]) != "true" || !strings.Contains(string(out["result"]), "copilot") {
+			t.Fatalf("quota capability failed: %s %s", method, out)
+		}
+		if method == "quota.describe" {
+			var description pluginapi.QuotaDescribeResponse
+			if json.Unmarshal(out["result"], &description) != nil || description.SupportsReset || description.DisplayName != "GitHub Copilot" {
+				t.Fatal("incorrect quota description")
+			}
+		}
+	}
+	for _, method := range []string{"quota.fetch", "quota.reset"} {
+		out := dispatch(t, p, method, struct{}{})
+		if string(out["ok"]) != "false" || strings.Contains(string(out["error"]), "unknown_method") {
+			t.Fatalf("quota method missing or invalid operation accepted: %s %s", method, out)
+		}
+	}
+	var out map[string]json.RawMessage
+	if json.Unmarshal(p.Dispatch("quota.fetch", []byte("invalid")), &out) != nil || string(out["ok"]) != "false" {
+		t.Fatal("malformed quota request accepted")
 	}
 }

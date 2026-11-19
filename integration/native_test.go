@@ -50,6 +50,13 @@ func TestNativePlugin(t *testing.T) {
 			fmt.Fprint(w, `{"access_token":"mock-github-token-new","token_type":"bearer","scope":"read:user"}`)
 		case "/user":
 			fmt.Fprint(w, `{"login":"new-account","id":123}`)
+		case "/copilot_internal/user":
+			if r.Header.Get("Authorization") != "token mock-github-token" {
+				t.Errorf("quota request did not use the selected GitHub token")
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			fmt.Fprint(w, `{"copilot_plan":"individual","quota_reset_date":"2026-11-01","quota_snapshots":{"chat":{"unlimited":true,"percent_remaining":100},"premium_interactions":{"percent_remaining":97.6,"token_based_billing":true}}}`)
 		case "/copilot_internal/v2/token":
 			grants.Add(1)
 			fmt.Fprintf(w, `{"token":"mock-copilot-token","expires_at":%d,"endpoints":{"api":%q}}`, time.Now().Add(time.Hour).Unix(), upstream.URL)
@@ -341,6 +348,55 @@ func TestNativePlugin(t *testing.T) {
 			}
 		}
 		t.Fatal("Edit config metadata lacks model_prefix with documented copilot default or models/models_excluded arrays")
+	})
+
+	t.Run("native quota capability", func(t *testing.T) {
+		code, body := request("GET", "/v0/management/quota/providers", "management-test-key", nil)
+		var providers struct {
+			Providers []struct {
+				PluginID      string `json:"plugin_id"`
+				Provider      string `json:"provider"`
+				SupportsReset bool   `json:"supports_reset"`
+			} `json:"providers"`
+		}
+		if code != 200 || json.Unmarshal(body, &providers) != nil || len(providers.Providers) != 1 || providers.Providers[0].PluginID != id || providers.Providers[0].Provider != "copilot" || providers.Providers[0].SupportsReset {
+			t.Fatalf("quota discovery failed: %d %s", code, body)
+		}
+		code, body = request("GET", "/v0/management/auth-files", "management-test-key", nil)
+		var accounts struct {
+			Files []struct {
+				Name          string `json:"name"`
+				AuthIndex     string `json:"auth_index"`
+				SupportsQuota bool   `json:"supports_quota"`
+			} `json:"files"`
+		}
+		if code != 200 || json.Unmarshal(body, &accounts) != nil || len(accounts.Files) != 1 || !accounts.Files[0].SupportsQuota || accounts.Files[0].AuthIndex == "" {
+			t.Fatalf("credential quota capability missing: %d %s", code, body)
+		}
+		code, body = request("POST", "/v0/management/quota/fetch", "management-test-key", map[string]string{"auth_index": accounts.Files[0].AuthIndex})
+		var quota struct {
+			Subscription struct {
+				Plan string `json:"plan"`
+			} `json:"subscription"`
+			Groups []struct {
+				Buckets []struct {
+					Window            string  `json:"window"`
+					RemainingFraction float64 `json:"remainingFraction"`
+					ResetTime         string  `json:"resetTime"`
+				} `json:"buckets"`
+			} `json:"groups"`
+		}
+		if code != 200 || json.Unmarshal(body, &quota) != nil || quota.Subscription.Plan != "individual" || len(quota.Groups) != 1 || len(quota.Groups[0].Buckets) != 1 {
+			t.Fatalf("quota fetch failed: %d %s", code, body)
+		}
+		bucket := quota.Groups[0].Buckets[0]
+		if bucket.Window != "premium_interactions" || bucket.RemainingFraction < 0.9759 || bucket.RemainingFraction > 0.9761 || bucket.ResetTime != "2026-11-01T00:00:00Z" {
+			t.Fatalf("incorrect quota: %s", body)
+		}
+		persisted, err := os.ReadFile(authPath)
+		if err != nil || !bytes.Equal(persisted, originalAuth) {
+			t.Fatal("quota read changed the persisted credential")
+		}
 	})
 
 	t.Run("eligible models only", func(t *testing.T) {

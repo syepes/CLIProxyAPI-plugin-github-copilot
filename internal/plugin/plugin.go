@@ -74,6 +74,7 @@ type registrationCapability struct {
 	ManagementAPI         bool                         `json:"management_api"`
 	ModelProvider         bool                         `json:"model_provider"`
 	AuthProvider          bool                         `json:"auth_provider"`
+	QuotaProvider         bool                         `json:"quota_provider"`
 	Executor              bool                         `json:"executor"`
 	ExecutorModelScope    pluginapi.ExecutorModelScope `json:"executor_model_scope"`
 	ExecutorInputFormats  []string                     `json:"executor_input_formats"`
@@ -101,6 +102,11 @@ type rpcAuthRefreshRequest struct {
 
 type rpcAuthModelRequest struct {
 	pluginapi.AuthModelRequest
+	HostCallbackID string `json:"host_callback_id,omitempty"`
+}
+
+type rpcQuotaFetchRequest struct {
+	pluginapi.QuotaFetchRequest
 	HostCallbackID string `json:"host_callback_id,omitempty"`
 }
 
@@ -214,8 +220,18 @@ func (p *Plugin) dispatch(method string, request []byte) (any, error) {
 			return nil, errUnmarshal
 		}
 		return pluginService.ModelsForAuth(ctx, req.HostCallbackID, req.AuthModelRequest)
-	case pluginabi.MethodAuthIdentifier, pluginabi.MethodExecutorIdentifier:
+	case pluginabi.MethodAuthIdentifier, pluginabi.MethodExecutorIdentifier, pluginabi.MethodQuotaIdentifier:
 		return identifierResponse{Identifier: "copilot"}, nil
+	case pluginabi.MethodQuotaDescribe:
+		return pluginapi.QuotaDescribeResponse{SupportedProviders: []string{"copilot"}, DisplayName: "GitHub Copilot"}, nil
+	case pluginabi.MethodQuotaFetch:
+		var req rpcQuotaFetchRequest
+		if errUnmarshal := json.Unmarshal(request, &req); errUnmarshal != nil {
+			return nil, errUnmarshal
+		}
+		return pluginService.FetchQuota(ctx, req.HostCallbackID, req.QuotaFetchRequest)
+	case pluginabi.MethodQuotaReset:
+		return nil, &provider.StatusError{Code: "unsupported", Message: "GitHub Copilot does not support quota resets", HTTPStatus: http.StatusNotImplemented}
 	case pluginabi.MethodAuthParse:
 		var req pluginapi.AuthParseRequest
 		if errUnmarshal := json.Unmarshal(request, &req); errUnmarshal != nil {
@@ -306,6 +322,7 @@ func pluginRegistration() registration {
 			ManagementAPI:         true,
 			ModelProvider:         true,
 			AuthProvider:          true,
+			QuotaProvider:         true,
 			Executor:              true,
 			ExecutorModelScope:    pluginapi.ExecutorModelScopeOAuth,
 			ExecutorInputFormats:  []string{"openai", "openai-response", "claude"},
