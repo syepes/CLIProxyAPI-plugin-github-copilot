@@ -454,5 +454,5 @@ func randomIdentifier(bytesCount int) (string, error) {
 }
 
 func userAgent() string {
-	return "CLIProxyAPI-Copilot-Plugin/0.1.1"
+	return "CLIProxyAPI-Copilot-Plugin/0.1.2"
 }

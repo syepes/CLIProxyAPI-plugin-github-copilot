@@ -18,7 +18,7 @@ import (
 const ID = "github-copilot"
 
 var (
-	Version    = "0.1.1"
+	Version    = "0.1.2"
 	Repository = "UNCONFIGURED"
 )
 

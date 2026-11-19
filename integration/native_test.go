@@ -295,8 +295,8 @@ func TestNativePlugin(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			write(filepath.Join(plugins, id+"-v0.1.1"+ext), replacement)
-			cfg["plugins"].(map[string]any)["configs"].(map[string]any)[id].(map[string]any)["store"] = map[string]any{"version": "0.1.1"}
+			write(filepath.Join(plugins, id+"-v0.1.2"+ext), replacement)
+			cfg["plugins"].(map[string]any)["configs"].(map[string]any)[id].(map[string]any)["store"] = map[string]any{"version": "0.1.2"}
 			next, err := json.Marshal(cfg)
 			if err != nil {
 				t.Fatal(err)

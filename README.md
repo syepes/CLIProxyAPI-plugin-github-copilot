@@ -40,7 +40,7 @@ Local builds use `UNCONFIGURED` repository metadata.
 Supply your real repository URL for a distributable build:
 
 ```sh
-make build VERSION=0.1.1 REPOSITORY=https://github.com/YOUR_ACCOUNT/YOUR_REPOSITORY
+make build VERSION=0.1.2 REPOSITORY=https://github.com/YOUR_ACCOUNT/YOUR_REPOSITORY
 ```
 
 ### FreeBSD cross-build
