@@ -63,6 +63,9 @@ func (s *Service) Execute(ctx context.Context, req ExecuteRequest) (pluginapi.Ex
 	if errTranslate != nil {
 		return pluginapi.ExecutorResponse{}, statusError("translation_error", errTranslate.Error(), http.StatusUnprocessableEntity)
 	}
+	if sourceFormat == "openai-response" && endpoint == translate.EndpointResponses {
+		requestBody = translate.RestoreReservedTools(requestBody, req.OriginalRequest)
+	}
 	resp, token, errDo := s.doModelRequest(ctx, req.HostCallbackID, req.AuthID, storage, token, endpoint, requestBody, false)
 	if errDo != nil {
 		return pluginapi.ExecutorResponse{}, errDo
@@ -129,6 +132,9 @@ func (s *Service) executeStreamWithTimeouts(ctx context.Context, req ExecuteRequ
 	requestBody, errTranslate := translate.RequestForEndpointFrom(sourceFormat, nativeModel, req.Payload, true, endpoint)
 	if errTranslate != nil {
 		return nil, statusError("translation_error", errTranslate.Error(), http.StatusUnprocessableEntity)
+	}
+	if sourceFormat == "openai-response" && endpoint == translate.EndpointResponses {
+		requestBody = translate.RestoreReservedTools(requestBody, req.OriginalRequest)
 	}
 	// Bound waiting for the first headers as well as later reads. Join a fired
 	// timer before proceeding so it cannot cancel a successfully transferred pump.
