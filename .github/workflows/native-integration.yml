@@ -16,11 +16,11 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - name: Check out unmodified CLIProxyAPI v8.0.15
+      - name: Check out unmodified CLIProxyAPI v8.0.79
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: router-for-me/CLIProxyAPI
-          ref: a4acc9f752bd46571f737a10c04bf413656ab06b
+          ref: 6faa8d20b2673404cff70a2f2d9537ae0d0e684d
           path: .host-ci
           persist-credentials: false
       - name: Build the pinned plugin-enabled host
@@ -28,7 +28,7 @@ jobs:
         env:
           CGO_ENABLED: "1"
         run: |
-          test "$(git rev-parse HEAD)" = a4acc9f752bd46571f737a10c04bf413656ab06b
+          test "$(git rev-parse HEAD)" = 6faa8d20b2673404cff70a2f2d9537ae0d0e684d
           go build -trimpath -buildvcs=false -o "$RUNNER_TEMP/cli-proxy-api" ./cmd/server
       - name: Verify native ABI and client wire protocols
         run: make integration CPA_BINARY="$RUNNER_TEMP/cli-proxy-api" REPOSITORY="https://github.com/$GITHUB_REPOSITORY"

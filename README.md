@@ -24,7 +24,7 @@ GitHub's internal Copilot endpoints are not a stable public inference API.
 ## Build
 
 Use Go 1.27.1 or newer, a working C compiler, and GNU Make (`gmake` on FreeBSD).
-The plugin requires a plugin-enabled CLIProxyAPI host; v8.0.15 is the integration-test baseline.
+The plugin requires a plugin-enabled CLIProxyAPI host; v8.0.79 is the integration-test baseline.
 
 ```sh
 make check
@@ -63,7 +63,7 @@ make integration CPA_BINARY=/absolute/path/to/cli-proxy-api
 ```
 
 CI and release packaging both require native host integration checks against the same source commit.
-CI also runs build and unit checks. The native job uses the unmodified v8.0.15 host pinned to commit `a4acc9f752bd46571f737a10c04bf413656ab06b`.
+CI also runs build and unit checks. The native job uses the unmodified v8.0.79 host pinned to commit `6faa8d20b2673404cff70a2f2d9537ae0d0e684d`.
 The integration target fails if `CPA_BINARY` or the built plugin is missing.
 Tests use an isolated host, mock GitHub/Copilot endpoints, and temporary credentials, not your existing deployment or account.
 Additional dependency checks are available through `make audit`.
