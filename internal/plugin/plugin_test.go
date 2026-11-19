@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginabi"
 	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 )
 
@@ -102,7 +103,7 @@ func TestMetadataContract(t *testing.T) {
 		}
 	}
 
-	if r.SchemaVersion != 6 || r.Metadata.Author == "" || r.Metadata.GitHubRepository == "" {
+	if r.SchemaVersion != pluginabi.SchemaVersion || r.Metadata.Author == "" || r.Metadata.GitHubRepository == "" {
 		t.Fatal("host rejects metadata")
 	}
 	if !r.Capabilities.ManagementAPI || !r.Capabilities.QuotaProvider || r.Capabilities.ExecutorModelScope != pluginapi.ExecutorModelScopeOAuth || len(r.Capabilities.ExecutorInputFormats) != 3 {
