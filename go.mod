@@ -3,15 +3,15 @@ module cliproxyapi-github-copilot
 go 1.27.4
 
 require (
-	github.com/router-for-me/CLIProxyAPI/v8 v8.0.79
-	github.com/tidwall/gjson v1.20.4
-	github.com/tidwall/sjson v1.2.10
+	github.com/router-for-me/CLIProxyAPI/v8 v8.1.2
+	github.com/tidwall/gjson v1.20.6
+	github.com/tidwall/sjson v1.2.11
 	github.com/tiktoken-go/tokenizer v0.10.0
 	go.yaml.in/yaml/v3 v3.0.6
 )
 
 require (
-	github.com/MoeForge/moego v0.1.0-alpha.4 // indirect
+	github.com/MoeForge/moego v0.1.0-alpha.5 // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.5 // indirect
 	github.com/bytedance/sonic/loader v0.5.3 // indirect
